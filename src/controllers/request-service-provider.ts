@@ -8,7 +8,7 @@ import { services } from "src/di/services";
 import { InternalError } from "src/errors/error";
 import { ErrorCodes } from "src/errors/utils";
 
-export async function matchServiceProvider(
+export async function requestServiceProvider(
   req: Request,
   res: Response,
   next: NextFunction
@@ -27,6 +27,14 @@ export async function matchServiceProvider(
     }
 
     const roomId = await services.broadcast.open();
+
+    const messages = users.map((user) => ({
+      to: user.id,
+      subject: `Solicitação de serviço - ${roomId}`,
+      content: `Você tem uma nova solicitação de serviço.`,
+    }));
+
+    await services.notification.send(messages);
 
     return res.status(200).send({ roomId });
   } catch (error) {

@@ -26,8 +26,8 @@ export class UsersRepository {
       name: "Jane Smith",
       email: "jane.smith@example.com",
       location: {
-        latitude: -23.5489,
-        longitude: -46.6388,
+        latitude: -23.59,
+        longitude: -46.62,
         radius: 15,
       },
     },

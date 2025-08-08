@@ -2,8 +2,8 @@
 import { Router } from "express";
 
 // Controllers
-import { matchServiceProvider } from "./controllers/match-service-provider";
+import { requestServiceProvider } from "./controllers/request-service-provider";
 
 export const router = Router();
 
-router.post("/match-service-provider", matchServiceProvider);
+router.post("/request-service-provider", requestServiceProvider);
