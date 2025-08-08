@@ -5,7 +5,9 @@ import { URL } from "url";
 
 // Environment
 import { env } from "../env";
-import { BroadcastMatchResponse } from "./enun";
+
+// Broadcast
+import { BroadcastMatchResponse } from "./utils";
 
 export type BroadcastRequestCode = (typeof Broadcast.codes)[number];
 

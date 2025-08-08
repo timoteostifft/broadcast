@@ -6,4 +6,4 @@ import { matchServiceProvider } from "./controllers/match-service-provider";
 
 export const router = Router();
 
-router.get("/match-service-provider", matchServiceProvider);
+router.post("/match-service-provider", matchServiceProvider);
