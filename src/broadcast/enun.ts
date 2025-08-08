@@ -1,0 +1,6 @@
+export enum BroadcastMatchResponse {
+  ACCEPT_MATCH = "MATCH_ACCEPTED",
+  DECLINE_MATCH = "MATCH_DECLINED",
+  END_MATCH = "MATCH_ENDED",
+  CANCEL_MATCH = "MATCH_CANCELED",
+}

@@ -5,9 +5,6 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 
-// Broadcast
-import { Broadcast } from "./broadcast";
-
 // Router
 import { router } from "./router";
 
