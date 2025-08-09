@@ -14,7 +14,7 @@ export async function requestServiceProvider(
   next: NextFunction
 ) {
   try {
-    const users = await services.usersRepository.list({
+    const serviceProviders = await services.usersRepository.list({
       roles: ["SERVICE_PROVIDER"],
       location: {
         latitude: req.body.latitude,
@@ -23,13 +23,21 @@ export async function requestServiceProvider(
       },
     });
 
-    if (!users.length) {
+    if (!serviceProviders.length) {
       throw new InternalError(ErrorCodes.UNSUFICIENT_SERVICE_PROVIDERS);
     }
 
-    const roomId = await services.broadcast.open();
+    console.log({
+      client: req.user,
+      serviceProviders,
+    });
 
-    const messages = users.map((user) => ({
+    const roomId = await services.broadcast.open({
+      client: req.user,
+      serviceProviders,
+    });
+
+    const messages = serviceProviders.map((user) => ({
       to: user.id,
       subject: `Solicitação de serviço - ${roomId}`,
       content: `Você tem uma nova solicitação de serviço.`,

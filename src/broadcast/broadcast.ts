@@ -7,12 +7,26 @@ import { URL } from "url";
 import { env } from "../env";
 
 // Broadcast
-import { BroadcastMatchResponse } from "./utils";
+import { BroadcastMatchStatus, RoomParticipant } from "./utils";
 
-export type BroadcastRequestCode = (typeof Broadcast.codes)[number];
+// Entities
+import { User } from "src/entities/user";
+import { services } from "src/di/services";
+
+export type BroadcastCode = (typeof Broadcast.codes)[number];
+
+interface BroadcastOpenRequest {
+  client: User;
+  serviceProviders: User[];
+}
+
+interface ChooseMatchStatusRequest {
+  status: BroadcastCode;
+  isParticipantInvolvedInMatchUpdate: boolean;
+}
 
 export class Broadcast {
-  private rooms = new Map<string, Set<WebSocket>>();
+  private rooms = new Map<string, Map<string, RoomParticipant>>();
 
   private server = new WebSocketServer({
     port: env.WS_PORT,
@@ -26,8 +40,6 @@ export class Broadcast {
   });
 
   constructor() {
-    this.rooms.set("1", new Set());
-
     this.server.on("connection", (client, req) => {
       if (!req.url) {
         client.close(1003);
@@ -35,6 +47,7 @@ export class Broadcast {
       }
 
       const url = new URL(req.url, `ws://${env.SERVER}:${env.WS_PORT}`);
+
       const roomId = url.searchParams.get("roomId");
 
       if (!roomId) {
@@ -47,7 +60,19 @@ export class Broadcast {
         return client.close(1003);
       }
 
-      room.add(client);
+      const userId = url.searchParams.get("userId");
+
+      if (!userId) {
+        return client.close(1003);
+      }
+
+      const participant = room.get(userId);
+
+      if (!participant) {
+        return client.close(1003);
+      }
+
+      participant.socket = client;
 
       client.on("message", (data) => {
         try {
@@ -57,7 +82,7 @@ export class Broadcast {
             return;
           }
 
-          const code = payload.code as BroadcastRequestCode;
+          const code = payload.code as BroadcastCode;
 
           // switch (code) {
           //   case "ACCEPT_MATCH":
@@ -72,39 +97,119 @@ export class Broadcast {
           //     return;
           // }
 
-          for (const client of room) {
-            client.send(
-              JSON.stringify({
-                code: BroadcastMatchResponse[code],
-              })
-            );
+          for (const participant of room.values()) {
+            if (!participant.socket) {
+              continue;
+            }
+
+            const status = this.chooseMatchStatus({
+              status: code,
+              isParticipantInvolvedInMatchUpdate:
+                participant.user.id === userId ||
+                participant.user.role === "CLIENT",
+            });
+
+            if (status) {
+              participant.socket.send(JSON.stringify({ status }));
+            }
+
+            const shouldDisconnectParticipant =
+              status !== BroadcastMatchStatus.ACCEPT_MATCH;
+
+            if (shouldDisconnectParticipant) {
+              participant.socket.close();
+            }
           }
         } catch (error) {
-          return;
+          return client.close(1003);
         }
-
-        client.on("close", () => {
-          room.delete(client);
-          // if (!room.size) {
-          //   this.rooms.delete(roomId);
-          // }
-        });
       });
+
+      client.on("close", () => {
+        room.delete(userId);
+
+        if (!room.size) {
+          this.rooms.delete(roomId);
+        }
+      });
+    });
+
+    this.open({
+      client: {
+        id: "1",
+        name: "John Doe",
+        email: "john.doe@example.com",
+        role: "CLIENT",
+        location: {
+          latitude: -23.5505,
+          longitude: -46.6333,
+          radius: 10,
+        },
+      },
+      serviceProviders: [
+        {
+          id: "2",
+          name: "Jane Smith",
+          email: "jane.smith@example.com",
+          role: "SERVICE_PROVIDER",
+          location: {
+            latitude: -23.59,
+            longitude: -46.62,
+            radius: 15,
+          },
+        },
+        {
+          id: "3",
+          name: "Alice Johnson",
+          email: "alice.johnson@example.com",
+          role: "SERVICE_PROVIDER",
+          location: {
+            latitude: -23.5902,
+            longitude: -46.6201,
+            radius: 15,
+          },
+        },
+      ],
     });
   }
 
-  async open() {
-    const roomId = randomUUID();
+  async open({ client, serviceProviders }: BroadcastOpenRequest) {
+    const roomId = "1";
 
-    this.rooms.set(roomId, new Set());
+    // const roomId = randomUUID();
+
+    const participants = new Map<string, RoomParticipant>();
+
+    participants.set(client.id, { user: client, socket: null });
+
+    serviceProviders.forEach((provider) => {
+      participants.set(provider.id, { user: provider, socket: null });
+    });
+
+    this.rooms.set(roomId, participants);
 
     return roomId;
   }
 
-  static codes = [
-    "ACCEPT_MATCH",
-    "DECLINE_MATCH",
-    "END_MATCH",
-    "CANCEL_MATCH",
-  ] as const;
+  private chooseMatchStatus({
+    status,
+    isParticipantInvolvedInMatchUpdate,
+  }: ChooseMatchStatusRequest): BroadcastMatchStatus | null {
+    switch (status) {
+      case "ACCEPT_MATCH":
+        return isParticipantInvolvedInMatchUpdate
+          ? BroadcastMatchStatus.ACCEPT_MATCH
+          : BroadcastMatchStatus.CLOSE_MATCH;
+      case "DECLINE_MATCH":
+        return isParticipantInvolvedInMatchUpdate
+          ? BroadcastMatchStatus.DECLINE_MATCH
+          : null;
+      case "CANCEL_MATCH":
+        return isParticipantInvolvedInMatchUpdate
+          ? BroadcastMatchStatus.CANCEL_MATCH
+          : BroadcastMatchStatus.CLOSE_MATCH;
+    }
+  }
+
+  static codes = ["ACCEPT_MATCH", "DECLINE_MATCH", "CANCEL_MATCH"] as const;
 }

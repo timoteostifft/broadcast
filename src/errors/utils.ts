@@ -3,14 +3,16 @@ export enum ErrorCodes {
   NOT_FOUND = "NOT_FOUND",
   BAD_REQUEST = "BAD_REQUEST",
   UNSUFICIENT_SERVICE_PROVIDERS = "UNSUFICIENT_SERVICE_PROVIDERS",
+  UNAUTHORIZED = "UNAUTHORIZED",
 }
 
 export const ErrorMessages: Record<ErrorCodes, string> = {
-  [ErrorCodes.INTERNAL_ERROR]: "An internal error occurred",
-  [ErrorCodes.NOT_FOUND]: "The requested resource was not found",
-  [ErrorCodes.BAD_REQUEST]: "The request was invalid",
+  [ErrorCodes.INTERNAL_ERROR]: "An internal error occurred.",
+  [ErrorCodes.NOT_FOUND]: "The requested resource was not found.",
+  [ErrorCodes.BAD_REQUEST]: "The request was invalid.",
   [ErrorCodes.UNSUFICIENT_SERVICE_PROVIDERS]:
-    "There are not enough service providers available",
+    "There are not enough service providers available.",
+  [ErrorCodes.UNAUTHORIZED]: "Unauthorized access. Please log in.",
 };
 
 export const ErrorStatuses: Record<ErrorCodes, number> = {
@@ -18,6 +20,7 @@ export const ErrorStatuses: Record<ErrorCodes, number> = {
   [ErrorCodes.NOT_FOUND]: 404,
   [ErrorCodes.BAD_REQUEST]: 400,
   [ErrorCodes.UNSUFICIENT_SERVICE_PROVIDERS]: 422,
+  [ErrorCodes.UNAUTHORIZED]: 401,
 };
 
 export type ErrorCode = keyof typeof ErrorCodes;

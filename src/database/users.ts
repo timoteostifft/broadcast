@@ -13,7 +13,7 @@ export interface UsersRepositorySearchRequest {
 export class UsersRepository {
   private users: User[] = [
     {
-      id: "user123",
+      id: "1",
       name: "John Doe",
       email: "john.doe@example.com",
       role: "CLIENT",
@@ -24,7 +24,7 @@ export class UsersRepository {
       },
     },
     {
-      id: "user456",
+      id: "2",
       name: "Jane Smith",
       email: "jane.smith@example.com",
       role: "SERVICE_PROVIDER",
@@ -35,17 +35,21 @@ export class UsersRepository {
       },
     },
     {
-      id: "user789",
+      id: "3",
       name: "Alice Johnson",
       email: "alice.johnson@example.com",
       role: "SERVICE_PROVIDER",
       location: {
-        latitude: -22.9068,
-        longitude: -43.1729,
-        radius: 20,
+        latitude: -23.5902,
+        longitude: -46.6201,
+        radius: 15,
       },
     },
   ];
+
+  public async findById(id: string): Promise<User | undefined> {
+    return this.users.find((user) => user.id === id);
+  }
 
   public async list({
     roles,
