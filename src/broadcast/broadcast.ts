@@ -1,5 +1,5 @@
 // Libraries
-import { WebSocket, WebSocketServer } from "ws";
+import { WebSocketServer } from "ws";
 import { randomUUID } from "crypto";
 import { URL } from "url";
 
@@ -11,7 +11,6 @@ import { BroadcastMatchStatus, RoomParticipant } from "./utils";
 
 // Entities
 import { User } from "src/entities/user";
-import { services } from "src/di/services";
 
 export type BroadcastCode = (typeof Broadcast.codes)[number];
 
@@ -89,8 +88,6 @@ export class Broadcast {
           //     break;
           //   case "DECLINE_MATCH":
           //     break;
-          //   case "END_MATCH":
-          //     break;
           //   case "CANCEL_MATCH":
           //     break;
           //   default:
@@ -114,7 +111,7 @@ export class Broadcast {
             }
 
             const shouldDisconnectParticipant =
-              status !== BroadcastMatchStatus.ACCEPT_MATCH;
+              status !== BroadcastMatchStatus.ACCEPTED;
 
             if (shouldDisconnectParticipant) {
               participant.socket.close();
@@ -133,50 +130,10 @@ export class Broadcast {
         }
       });
     });
-
-    this.open({
-      client: {
-        id: "1",
-        name: "John Doe",
-        email: "john.doe@example.com",
-        role: "CLIENT",
-        location: {
-          latitude: -23.5505,
-          longitude: -46.6333,
-          radius: 10,
-        },
-      },
-      serviceProviders: [
-        {
-          id: "2",
-          name: "Jane Smith",
-          email: "jane.smith@example.com",
-          role: "SERVICE_PROVIDER",
-          location: {
-            latitude: -23.59,
-            longitude: -46.62,
-            radius: 15,
-          },
-        },
-        {
-          id: "3",
-          name: "Alice Johnson",
-          email: "alice.johnson@example.com",
-          role: "SERVICE_PROVIDER",
-          location: {
-            latitude: -23.5902,
-            longitude: -46.6201,
-            radius: 15,
-          },
-        },
-      ],
-    });
   }
 
   async open({ client, serviceProviders }: BroadcastOpenRequest) {
-    const roomId = "1";
-
-    // const roomId = randomUUID();
+    const roomId = randomUUID();
 
     const participants = new Map<string, RoomParticipant>();
 
@@ -198,16 +155,16 @@ export class Broadcast {
     switch (status) {
       case "ACCEPT_MATCH":
         return isParticipantInvolvedInMatchUpdate
-          ? BroadcastMatchStatus.ACCEPT_MATCH
-          : BroadcastMatchStatus.CLOSE_MATCH;
+          ? BroadcastMatchStatus.ACCEPTED
+          : BroadcastMatchStatus.CLOSED;
       case "DECLINE_MATCH":
         return isParticipantInvolvedInMatchUpdate
-          ? BroadcastMatchStatus.DECLINE_MATCH
+          ? BroadcastMatchStatus.DECLINED
           : null;
       case "CANCEL_MATCH":
         return isParticipantInvolvedInMatchUpdate
-          ? BroadcastMatchStatus.CANCEL_MATCH
-          : BroadcastMatchStatus.CLOSE_MATCH;
+          ? BroadcastMatchStatus.CANCELED
+          : BroadcastMatchStatus.CLOSED;
     }
   }
 

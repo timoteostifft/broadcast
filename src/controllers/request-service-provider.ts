@@ -3,12 +3,14 @@ import { NextFunction, Request, Response } from "express";
 
 // DI
 import { services } from "src/di/services";
+import { Match } from "src/entities/match";
 
 // Errors
 import { InternalError } from "src/errors/error";
 import { ErrorCodes } from "src/errors/utils";
+import { MatchPresenter } from "src/presenters/match-presenter";
 
-export async function requestServiceProvider(
+export async function createMatch(
   req: Request,
   res: Response,
   next: NextFunction
@@ -27,11 +29,6 @@ export async function requestServiceProvider(
       throw new InternalError(ErrorCodes.UNSUFICIENT_SERVICE_PROVIDERS);
     }
 
-    console.log({
-      client: req.user,
-      serviceProviders,
-    });
-
     const roomId = await services.broadcast.open({
       client: req.user,
       serviceProviders,
@@ -45,7 +42,17 @@ export async function requestServiceProvider(
 
     await services.notification.send(messages);
 
-    return res.status(200).send({ roomId });
+    const match = new Match({
+      clientId: req.user.id,
+      serviceProviderId: serviceProviders[0].id,
+      status: "PENDING",
+    });
+
+    await services.matchsRepository.create(match);
+
+    return res
+      .status(200)
+      .send({ roomId, match: MatchPresenter.toHTTP(match) });
   } catch (error) {
     next(error);
   }

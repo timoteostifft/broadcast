@@ -5,10 +5,10 @@ import { User } from "src/entities/user";
 import { WebSocket } from "ws";
 
 export enum BroadcastMatchStatus {
-  ACCEPT_MATCH = "MATCH_ACCEPTED",
-  DECLINE_MATCH = "MATCH_DECLINED",
-  CLOSE_MATCH = "MATCH_CLOSED",
-  CANCEL_MATCH = "MATCH_CANCELED",
+  ACCEPTED = "MATCH_ACCEPTED",
+  DECLINED = "MATCH_DECLINED",
+  CLOSED = "MATCH_CLOSED",
+  CANCELED = "MATCH_CANCELED",
 }
 
 export interface RoomParticipant {

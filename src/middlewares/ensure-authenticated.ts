@@ -12,7 +12,7 @@ export async function ensureAuthenticated(
   next: NextFunction
 ) {
   try {
-    const user = await services.usersRepository.findById("1");
+    const user = services.usersRepository.users[0];
 
     if (!user) {
       throw new InternalError(ErrorCodes.UNAUTHORIZED);

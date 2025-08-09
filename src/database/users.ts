@@ -11,9 +11,8 @@ export interface UsersRepositorySearchRequest {
 }
 
 export class UsersRepository {
-  private users: User[] = [
-    {
-      id: "1",
+  public users: User[] = [
+    new User({
       name: "John Doe",
       email: "john.doe@example.com",
       role: "CLIENT",
@@ -22,9 +21,8 @@ export class UsersRepository {
         longitude: -46.6333,
         radius: 10,
       },
-    },
-    {
-      id: "2",
+    }),
+    new User({
       name: "Jane Smith",
       email: "jane.smith@example.com",
       role: "SERVICE_PROVIDER",
@@ -33,9 +31,8 @@ export class UsersRepository {
         longitude: -46.62,
         radius: 15,
       },
-    },
-    {
-      id: "3",
+    }),
+    new User({
       name: "Alice Johnson",
       email: "alice.johnson@example.com",
       role: "SERVICE_PROVIDER",
@@ -44,11 +41,17 @@ export class UsersRepository {
         longitude: -46.6201,
         radius: 15,
       },
-    },
+    }),
   ];
 
-  public async findById(id: string): Promise<User | undefined> {
-    return this.users.find((user) => user.id === id);
+  public async findById(id: string): Promise<User | null> {
+    const user = this.users.find((user) => user.id === id);
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
   }
 
   public async list({
