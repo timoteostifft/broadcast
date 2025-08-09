@@ -15,6 +15,7 @@ export async function requestServiceProvider(
 ) {
   try {
     const users = await services.usersRepository.list({
+      roles: ["SERVICE_PROVIDER"],
       location: {
         latitude: req.body.latitude,
         longitude: req.body.longitude,

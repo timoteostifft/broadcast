@@ -1,7 +1,8 @@
 // Entities
-import { User } from "../entities/user";
+import { User, UserRole } from "../entities/user";
 
 export interface UsersRepositorySearchRequest {
+  roles: UserRole[];
   location: {
     latitude: number;
     longitude: number;
@@ -10,11 +11,12 @@ export interface UsersRepositorySearchRequest {
 }
 
 export class UsersRepository {
-  private users = [
+  private users: User[] = [
     {
       id: "user123",
       name: "John Doe",
       email: "john.doe@example.com",
+      role: "CLIENT",
       location: {
         latitude: -23.5505,
         longitude: -46.6333,
@@ -25,6 +27,7 @@ export class UsersRepository {
       id: "user456",
       name: "Jane Smith",
       email: "jane.smith@example.com",
+      role: "SERVICE_PROVIDER",
       location: {
         latitude: -23.59,
         longitude: -46.62,
@@ -35,6 +38,7 @@ export class UsersRepository {
       id: "user789",
       name: "Alice Johnson",
       email: "alice.johnson@example.com",
+      role: "SERVICE_PROVIDER",
       location: {
         latitude: -22.9068,
         longitude: -43.1729,
@@ -44,11 +48,16 @@ export class UsersRepository {
   ];
 
   public async list({
+    roles,
     location,
   }: UsersRepositorySearchRequest): Promise<User[]> {
     const { latitude, longitude, radius } = location;
 
     return this.users.filter((user) => {
+      if (!roles.includes(user.role)) {
+        return false;
+      }
+
       const R = 6371;
       const dLat = ((user.location.latitude - latitude) * Math.PI) / 180;
       const dLon = ((user.location.longitude - longitude) * Math.PI) / 180;
