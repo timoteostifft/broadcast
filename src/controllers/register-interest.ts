@@ -34,9 +34,7 @@ export async function registerInterest(
       throw new InternalError(ErrorCodes.RESOURCE_ALREADY_EXISTS);
     }
 
-    const earlyAdopter = new EarlyAdopter({
-      email: req.body.email,
-    });
+    const earlyAdopter = new EarlyAdopter({ email });
 
     await services.earlyAdoptersRepository.create(earlyAdopter);
 

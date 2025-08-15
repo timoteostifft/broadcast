@@ -2,9 +2,9 @@
 import { Broadcast } from "src/broadcast/broadcast";
 
 // Database
-import { UsersRepository } from "src/database/users";
-import { MatchsRepository } from "src/database/matchs";
-import { EarlyAdoptersRepository } from "src/database/early-adopters";
+import { UsersRepository } from "src/repositories/users";
+import { MatchsRepository } from "src/repositories/matchs";
+import { EarlyAdoptersRepository } from "src/repositories/early-adopters";
 
 // Notification
 import { Notification } from "src/notification/notification";

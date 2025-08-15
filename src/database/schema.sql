@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS early_adopters (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME
+);
