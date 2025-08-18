@@ -15,7 +15,13 @@ import { handler } from "./errors/handler";
 
 const server = express();
 
-server.use(cors({ origin: true, credentials: true }));
+server.use(
+  cors({
+    origin: "https://ajudai-three.vercel.app",
+    credentials: true,
+  })
+);
+
 server.use(express.json());
 server.use(router);
 server.use(handler);
