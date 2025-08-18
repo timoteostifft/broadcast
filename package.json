@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "generate-certs": "openssl req -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365 -subj '/C=BR/ST=SP/L=City/O=Company/OU=Dev/CN=localhost'",
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts"
   },
