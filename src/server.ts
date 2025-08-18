@@ -15,7 +15,7 @@ import { handler } from "./errors/handler";
 
 const server = express();
 
-server.use(cors({ origin: true, credentials: true }));
+server.use(cors());
 
 server.use(express.json());
 server.use(router);
@@ -29,6 +29,6 @@ https
     },
     server
   )
-  .listen(3333, () => {
+  .listen(8080, () => {
     console.log("🚀 Servidor HTTPS rodando!");
   });
