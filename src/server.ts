@@ -21,14 +21,6 @@ server.use(express.json());
 server.use(router);
 server.use(handler);
 
-https
-  .createServer(
-    {
-      key: fs.readFileSync("key.pem"),
-      cert: fs.readFileSync("cert.pem"),
-    },
-    server
-  )
-  .listen(8080, () => {
-    console.log("🚀 Servidor HTTPS rodando!");
-  });
+server.listen(8080, () => {
+  console.log("🚀 Servidor HTTPS rodando!");
+});
