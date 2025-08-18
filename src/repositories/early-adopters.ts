@@ -20,7 +20,7 @@ export class EarlyAdoptersRepository {
     this.db.exec(schema);
   }
 
-  findByEmail(email: string): EarlyAdopter | null {
+  async findByEmail(email: string): Promise<EarlyAdopter | null> {
     const row = this.db
       .prepare("SELECT * FROM early_adopters WHERE email = ?")
       .get(email);
@@ -28,13 +28,23 @@ export class EarlyAdoptersRepository {
     return new EarlyAdopter(row as EarlyAdopterProps);
   }
 
-  create({ id, email, createdAt, updatedAt }: EarlyAdopter): void {
+  async create({
+    id,
+    email,
+    createdAt,
+    updatedAt,
+  }: EarlyAdopter): Promise<void> {
     try {
       this.db
         .prepare(
           "INSERT INTO early_adopters (id, email, createdAt, updatedAt) VALUES (?, ?, ?, ?)"
         )
-        .run(id, email, createdAt, updatedAt);
+        .run(
+          id,
+          email,
+          createdAt.toISOString(),
+          updatedAt ? updatedAt.toISOString() : null
+        );
     } catch (err) {
       console.error("Erro SQLite:", err);
       throw err;
